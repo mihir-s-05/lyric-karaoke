@@ -52,6 +52,11 @@
     "directories": {
       "output": "dist-electron"
     },
+    "publish": [
+      {
+        "provider": "github"
+      }
+    ],
     "files": [
       "dist/**",
       "electron/**",
