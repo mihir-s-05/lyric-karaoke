@@ -14,7 +14,6 @@ export function GameResults({ durationMs, onPlayAgain, onBackToSearch }: GameRes
     const { currentSong, difficulty, lineResults } = useGameStore();
     const [showGrade, setShowGrade] = useState(false);
 
-    // Animation trigger
     useEffect(() => {
         const timer = setTimeout(() => setShowGrade(true), 500);
         return () => clearTimeout(timer);
@@ -42,18 +41,19 @@ export function GameResults({ durationMs, onPlayAgain, onBackToSearch }: GameRes
 
     return (
         <div className="w-full max-w-4xl mx-auto text-center animate-slide-up">
-            {/* Header */}
+
             <div className="mb-12">
                 <h2 className="font-display font-bold text-4xl text-white mb-2 tracking-wide text-glow">
                     SESSION COMPLETE
                 </h2>
                 <p className="font-mono text-neon-blue tracking-[0.2em] uppercase">
-                    {currentSong?.trackName} // {currentSong?.artistName}
+                    {currentSong?.trackName}
+                    {currentSong?.artistName ? ` // ${currentSong.artistName}` : ''}
                 </p>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
-                {/* Left: Grade Reveal */}
+
                 <div className="relative flex flex-col items-center justify-center p-12 bg-black/30 rounded-3xl border border-white/10 glass-panel">
                     <div className="text-white/40 font-mono tracking-widest text-sm mb-4">PERFORMANCE GRADE</div>
 
@@ -69,7 +69,7 @@ export function GameResults({ durationMs, onPlayAgain, onBackToSearch }: GameRes
                     </div>
                 </div>
 
-                {/* Right: Stats Grid */}
+
                 <div className="grid grid-cols-2 gap-4">
                     <StatCard label="TOTAL SCORE" value={stats.totalScore.toLocaleString()} delay={100} />
                     <StatCard label="ACCURACY" value={`${(stats.accuracy * 100).toFixed(1)}%`} delay={200} />
@@ -89,7 +89,7 @@ export function GameResults({ durationMs, onPlayAgain, onBackToSearch }: GameRes
                 </div>
             </div>
 
-            {/* Actions */}
+
             <div className="flex justify-center gap-6">
                 <button
                     onClick={onPlayAgain}

@@ -1,7 +1,7 @@
 @import "tailwindcss";
 @config "../tailwind.config.ts";
 
-/* Global overrides */
+
 :root {
   color-scheme: dark;
 }
@@ -17,7 +17,7 @@ body {
   @apply min-h-screen flex flex-col;
 }
 
-/* Glassmorphism utilities */
+
 .glass-panel {
   @apply bg-deep-card backdrop-blur-xl border border-white/10 shadow-xl;
 }
@@ -26,7 +26,7 @@ body {
   @apply transition-all duration-300 hover:bg-white/5 hover:border-neon-blue/30 hover:shadow-neon-blue/20;
 }
 
-/* Custom Scrollbar */
+
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -40,7 +40,7 @@ body {
   @apply bg-white/10 rounded-full hover:bg-neon-blue/50 transition-colors;
 }
 
-/* Animations that Tailwind can't easily express */
+
 .text-glow {
   text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
 }

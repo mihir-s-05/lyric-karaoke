@@ -6,9 +6,7 @@ import { execSync, spawn, ChildProcess } from 'child_process';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Timeout for yt-dlp operations (5 minutes)
 const YTDLP_TIMEOUT_MS = 5 * 60 * 1000;
-// Timeout for search operations (30 seconds)
 const SEARCH_TIMEOUT_MS = 30 * 1000;
 
 export interface YouTubeSearchResult {
@@ -26,22 +24,23 @@ export interface DownloadStatus {
     process?: ChildProcess;
 }
 
+export interface YtdlpServiceOptions {
+    cacheDir?: string;
+}
+
 export class YtdlpService {
     private cacheDir: string;
     private tempDir: string;
     private ytdlpAvailable: boolean = false;
     private pythonAvailable: boolean = false;
 
-    // Download locks to prevent duplicate concurrent downloads
     private downloadLocks: Map<string, Promise<string>> = new Map();
-    // Download progress tracking
     private downloadProgress: Map<string, DownloadStatus> = new Map();
 
-    constructor() {
-        this.cacheDir = path.join(__dirname, '..', '..', 'cache');
-        this.tempDir = path.join(__dirname, '..', '..', 'cache', '.temp');
+    constructor(options: YtdlpServiceOptions = {}) {
+        this.cacheDir = options.cacheDir ?? path.join(__dirname, '..', '..', 'cache');
+        this.tempDir = path.join(this.cacheDir, '.temp');
 
-        // Ensure cache and temp directories exist
         if (!fs.existsSync(this.cacheDir)) {
             fs.mkdirSync(this.cacheDir, { recursive: true });
             console.log(`📁 Created cache directory: ${this.cacheDir}`);
@@ -51,15 +50,11 @@ export class YtdlpService {
             console.log(`📁 Created temp directory: ${this.tempDir}`);
         }
 
-        // Check for yt-dlp availability
         this.checkDependencies();
     }
 
-    /**
-     * Check if Python and yt-dlp are available
-     */
+
     private checkDependencies(): void {
-        // Check Python
         try {
             execSync('python --version', { encoding: 'utf-8', timeout: 5000 });
             this.pythonAvailable = true;
@@ -69,7 +64,6 @@ export class YtdlpService {
             this.pythonAvailable = false;
         }
 
-        // Check yt-dlp module
         if (this.pythonAvailable) {
             try {
                 execSync('python -m yt_dlp --version', { encoding: 'utf-8', timeout: 5000 });
@@ -82,9 +76,7 @@ export class YtdlpService {
         }
     }
 
-    /**
-     * Get dependency status for health checks
-     */
+
     getDependencyStatus(): { python: boolean; ytdlp: boolean } {
         return {
             python: this.pythonAvailable,
@@ -92,16 +84,12 @@ export class YtdlpService {
         };
     }
 
-    /**
-     * Get download status for a video
-     */
+
     getDownloadStatus(videoId: string): DownloadStatus | null {
         return this.downloadProgress.get(videoId) || null;
     }
 
-    /**
-     * Execute yt-dlp command and return output with timeout
-     */
+
     private async execYtdlp(
         args: string[],
         options: { timeout?: number; onProgress?: (progress: number) => void } = {}
@@ -113,12 +101,10 @@ export class YtdlpService {
         }
 
         return new Promise((resolve, reject) => {
-            // Use python -m yt_dlp since yt-dlp may not be in PATH
             const command = 'python';
             const fullArgs = ['-m', 'yt_dlp', ...args];
             console.log(`🔧 Running: ${command} ${fullArgs.map(a => `"${a}"`).join(' ')}`);
 
-            // Don't use shell: true to prevent argument splitting
             const proc = spawn(command, fullArgs, {
                 stdio: ['pipe', 'pipe', 'pipe']
             });
@@ -127,7 +113,6 @@ export class YtdlpService {
             let stderr = '';
             let timedOut = false;
 
-            // Set up timeout
             const timeoutId = setTimeout(() => {
                 timedOut = true;
                 proc.kill('SIGTERM');
@@ -142,7 +127,6 @@ export class YtdlpService {
                 const chunk = data.toString();
                 stderr += chunk;
 
-                // Parse progress from stderr if callback provided
                 if (options.onProgress) {
                     const progressMatch = chunk.match(/(\d+\.?\d*)%/);
                     if (progressMatch) {
@@ -175,14 +159,11 @@ export class YtdlpService {
         });
     }
 
-    /**
-     * Search YouTube for videos matching the query
-     */
+
     async searchYouTube(query: string, maxResults: number = 5): Promise<YouTubeSearchResult[]> {
         try {
             console.log(`🔍 YtdlpService.searchYouTube("${query}", ${maxResults})`);
 
-            // No need for manual quotes since we removed shell: true
             const searchUrl = `ytsearch${maxResults}:${query}`;
 
             const { stdout } = await this.execYtdlp([
@@ -194,7 +175,6 @@ export class YtdlpService {
 
             console.log(`   Raw output length: ${stdout.length} chars`);
 
-            // Parse the JSON output (one JSON object per line)
             const lines = stdout.trim().split('\n').filter((line: string) => line.trim());
             console.log(`   Found ${lines.length} JSON lines`);
 
@@ -225,9 +205,7 @@ export class YtdlpService {
         }
     }
 
-    /**
-     * Download audio from a YouTube video with concurrency lock and atomic file operations
-     */
+
     async downloadAudio(videoId: string, trackName?: string, artistName?: string): Promise<string> {
         const outputPath = path.join(this.cacheDir, `${videoId}.mp3`);
 
@@ -238,20 +216,17 @@ export class YtdlpService {
             }
         }
 
-        // Check if already cached
         if (fs.existsSync(outputPath)) {
             console.log(`✅ Audio already cached: ${outputPath}`);
             return outputPath;
         }
 
-        // Check for existing download lock (prevent duplicate concurrent downloads)
         const existingDownload = this.downloadLocks.get(videoId);
         if (existingDownload) {
             console.log(`⏳ Download already in progress for ${videoId}, waiting...`);
             return existingDownload;
         }
 
-        // Create download promise and store it
         const downloadPromise = this.performDownload(videoId, outputPath);
         this.downloadLocks.set(videoId, downloadPromise);
 
@@ -259,15 +234,12 @@ export class YtdlpService {
             const result = await downloadPromise;
             return result;
         } finally {
-            // Clean up lock after completion (success or failure)
             this.downloadLocks.delete(videoId);
             this.downloadProgress.delete(videoId);
         }
     }
 
-    /**
-     * Actual download implementation with temp file and atomic rename
-     */
+
     private async performDownload(videoId: string, outputPath: string): Promise<string> {
         const tempPath = path.join(this.tempDir, `${videoId}_${Date.now()}.mp3`);
         const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
@@ -276,7 +248,6 @@ export class YtdlpService {
         console.log(`📁 Temp: ${tempPath}`);
         console.log(`📁 Final: ${outputPath}`);
 
-        // Initialize download progress tracking
         this.downloadProgress.set(videoId, {
             videoId,
             progress: 0,
@@ -291,7 +262,7 @@ export class YtdlpService {
                 '--audio-quality', '0',
                 '-o', tempPath,
                 '--no-playlist',
-                '--newline',  // Better progress parsing
+                '--newline',
             ], {
                 onProgress: (progress) => {
                     const status = this.downloadProgress.get(videoId);
@@ -301,7 +272,6 @@ export class YtdlpService {
                 }
             });
 
-            // Verify temp file was created
             if (!fs.existsSync(tempPath)) {
                 throw new Error('Download completed but temp file not found');
             }
@@ -309,13 +279,11 @@ export class YtdlpService {
             const stats = fs.statSync(tempPath);
             console.log(`✅ Downloaded successfully: ${(stats.size / 1024 / 1024).toFixed(2)} MB`);
 
-            // Atomic rename from temp to final destination
             fs.renameSync(tempPath, outputPath);
             console.log(`✅ Moved to final location: ${outputPath}`);
 
             return outputPath;
         } catch (error) {
-            // Clean up partial temp file if exists
             if (fs.existsSync(tempPath)) {
                 try {
                     fs.unlinkSync(tempPath);
@@ -330,9 +298,7 @@ export class YtdlpService {
         }
     }
 
-    /**
-     * Cancel an in-progress download
-     */
+
     cancelDownload(videoId: string): boolean {
         const status = this.downloadProgress.get(videoId);
         if (status?.process) {
@@ -345,9 +311,7 @@ export class YtdlpService {
         return false;
     }
 
-    /**
-     * Check if audio is cached and return the path
-     */
+
     getCachedAudioPath(videoId: string): string | null {
         const mp3Path = path.join(this.cacheDir, `${videoId}.mp3`);
 
@@ -358,9 +322,7 @@ export class YtdlpService {
         return null;
     }
 
-    /**
-     * Get cache statistics
-     */
+
     getCacheStats(): { fileCount: number; totalSizeMB: number } {
         try {
             const files = fs.readdirSync(this.cacheDir);
@@ -381,4 +343,3 @@ export class YtdlpService {
         }
     }
 }
-

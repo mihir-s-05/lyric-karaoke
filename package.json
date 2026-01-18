@@ -3,16 +3,25 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "main": "electron/main.js",
   "scripts": {
     "dev": "vite",
+    "dev:server": "npm --prefix server run dev",
+    "dev:electron": "npm run build:server && concurrently -k \"npm run dev\" \"npm --prefix server run build -- --watch\" \"wait-on http://localhost:5173 && cross-env NODE_ENV=development ELECTRON_RENDERER_URL=http://localhost:5173 electron .\"",
     "build": "tsc -b && vite build",
+    "build:server": "npm --prefix server run build",
+    "build:electron": "npm run build && npm run build:server",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "dist": "npm run build:electron && electron-builder"
   },
   "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
     "howler": "^2.2.4",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "ytdlp-nodejs": "^2.3.5",
     "zustand": "^5.0.10"
   },
   "devDependencies": {
@@ -23,6 +32,10 @@
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.1",
+    "concurrently": "^9.1.2",
+    "cross-env": "^7.0.3",
+    "electron": "^36.0.0",
+    "electron-builder": "^26.0.13",
     "eslint": "^9.39.1",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
@@ -30,6 +43,30 @@
     "tailwindcss": "^4.1.18",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.4",
-    "vite": "^7.2.4"
+    "vite": "^7.2.4",
+    "wait-on": "^8.0.2"
+  },
+  "build": {
+    "appId": "com.mihirsrivastava.lyrickaraoke",
+    "productName": "Lyric Karaoke",
+    "directories": {
+      "output": "dist-electron"
+    },
+    "files": [
+      "dist/**",
+      "electron/**",
+      "server/dist/**",
+      "package.json",
+      "!server/cache/**"
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "mac": {
+      "target": "dmg"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
   }
 }

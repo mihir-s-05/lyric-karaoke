@@ -36,14 +36,13 @@ function App() {
     setView('search');
   };
 
-  // Game View takes over full screen
   if (view === 'game') {
     return <GameView onBackToSearch={handleBackToSearch} />;
   }
 
   return (
     <div className="min-h-screen p-4 md:p-8 flex flex-col items-center">
-      {/* Onboarding Modal */}
+
       {showOnboarding && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
           <div className="bg-deep-surface border border-white/10 rounded-3xl p-8 max-w-lg w-full max-h-[90vh] overflow-y-auto animate-slide-up">
@@ -119,20 +118,20 @@ function App() {
         </div>
       )}
 
-      {/* Search & Setup Layout */}
+
       <div className="w-full max-w-7xl mx-auto flex flex-col gap-12">
 
-        {/* Header */}
+
         <header className="text-center py-10 relative">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-neon-blue/20 blur-[100px] rounded-full pointer-events-none opacity-50"></div>
           <h1 className="relative text-6xl md:text-8xl font-display font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-white via-white to-white/50 mb-4 animate-glow">
             NEO<span className="text-neon-blue">LYRIC</span>
           </h1>
           <p className="relative font-mono text-neon-purple tracking-[0.3em] uppercase text-sm">
-            Rhythm // Typing // Synergy
+            {'Rhythm // Typing // Synergy'}
           </p>
 
-          {/* Help button */}
+
           <button
             onClick={() => setShowOnboarding(true)}
             className="absolute top-4 right-4 px-3 py-2 rounded-lg text-xs font-mono text-white/40 hover:text-white hover:bg-white/10 transition-all flex items-center gap-2"
@@ -147,11 +146,11 @@ function App() {
         {view === 'search' && (
           <div className="animate-slide-up space-y-12">
 
-            {/* Main Search Area */}
+
             <div className="relative z-10">
               <SongSearch />
 
-              {/* Continue Action */}
+
               {currentSong && (
                 <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 animate-slide-up">
                   <button
@@ -167,7 +166,7 @@ function App() {
               )}
             </div>
 
-            {/* Top Scores Footer */}
+
             <div className="max-w-4xl mx-auto border-t border-white/5 pt-12">
               <h2 className="text-center font-display text-2xl text-white/40 mb-8 tracking-widest">GLOBAL RANKINGS</h2>
 

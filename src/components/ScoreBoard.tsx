@@ -24,7 +24,7 @@ export function ScoreBoard({ className = '' }: ScoreBoardProps) {
 
     return (
         <div className={`grid grid-cols-3 gap-8 items-start w-full max-w-5xl mx-auto ${className}`}>
-            {/* Left: Combo Counter */}
+
             <div className="flex flex-col items-center">
                 <div className="relative">
                     <div className={`font-display font-black text-6xl tracking-tighter transition-all duration-100 ${combo > 10 ? 'text-neon-blue scale-110 drop-shadow-[0_0_15px_#00f3ff]' :
@@ -41,13 +41,13 @@ export function ScoreBoard({ className = '' }: ScoreBoardProps) {
                 </div>
             </div>
 
-            {/* Center: Main Score */}
+
             <div className="flex flex-col items-center relative top-2">
                 <div className="font-display font-bold text-7xl text-white tracking-widest text-glow drop-shadow-2xl">
                     {score.toLocaleString()}
                 </div>
 
-                {/* Visual Feedback Popup */}
+
                 <div className="h-8 mt-2 overflow-visible flex justify-center">
                     {feedback && (
                         <div key={lineResults.length} className={`
@@ -60,7 +60,7 @@ export function ScoreBoard({ className = '' }: ScoreBoardProps) {
                 </div>
             </div>
 
-            {/* Right: Accuracy & Difficulty */}
+
             <div className="flex flex-col items-center">
                 <div className={`font-display font-bold text-4xl transition-colors ${accuracy >= 0.9 ? 'text-neon-green' :
                     accuracy >= 0.7 ? 'text-yellow-400' : 'text-rose-500'

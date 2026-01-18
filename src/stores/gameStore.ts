@@ -9,21 +9,17 @@ import type {
 } from '../types';
 import { getSettings, saveSettings } from '../utils/storage';
 
-// Typing modes
 export type TypingMode = 'normal' | 'strict' | 'assist';
 
 interface GameStore extends GameState {
-    // Song info
     currentSong: SongInfo | null;
     lyrics: ParsedLyrics | null;
     audioSource: AudioSource | null;
     audioUrl: string | null;
 
-    // Audio settings
-    lyricsOffset: number;  // Offset in ms (positive = lyrics appear earlier)
+    lyricsOffset: number;
     typingMode: TypingMode;
 
-    // YouTube result info (for display)
     youtubeInfo: {
         videoId?: string;
         videoTitle?: string;
@@ -31,10 +27,8 @@ interface GameStore extends GameState {
         videoChannel?: string;
     } | null;
 
-    // Auto-submit notification
     showAutoSubmitNotification: boolean;
 
-    // Actions
     setDifficulty: (difficulty: Difficulty) => void;
     setSong: (song: SongInfo, lyrics: ParsedLyrics) => void;
     setAudioSource: (source: AudioSource, url: string) => void;
@@ -108,7 +102,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
     },
 
     setLyricsOffset: (offset) => {
-        // Clamp offset to ±2000ms
         const clampedOffset = Math.max(-2000, Math.min(2000, offset));
         set({ lyricsOffset: clampedOffset });
     },

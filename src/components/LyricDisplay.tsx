@@ -26,9 +26,8 @@ export function LyricDisplay({ className = '' }: LyricDisplayProps) {
         return (
             <div className="flex flex-wrap justify-center gap-[2px] leading-tight">
                 {chars.map((char, index) => {
-                    let styleClass = 'text-white/20'; // Pending state
+                    let styleClass = 'text-white/20';
 
-                    // If line is completed, show all chars as correct
                     if (isLineCompleted) {
                         styleClass = 'text-neon-blue drop-shadow-[0_0_8px_rgba(0,243,255,0.8)]';
                     } else if (index < typedText.length) {
@@ -67,7 +66,7 @@ export function LyricDisplay({ className = '' }: LyricDisplayProps) {
 
     return (
         <div className={`flex flex-col items-center justify-center min-h-[300px] ${className}`}>
-            {/* Previous Line (Fading Out) */}
+
             <div className="h-12 flex items-center justify-center mb-8 opacity-40 transform scale-90 blur-[1px] transition-all duration-500">
                 {displayLines.prev && (
                     <span className="font-display text-xl text-white/60">
@@ -76,11 +75,11 @@ export function LyricDisplay({ className = '' }: LyricDisplayProps) {
                 )}
             </div>
 
-            {/* Current Line (Active) */}
+
             <div className="relative py-8 px-8 bg-black/20 backdrop-blur-sm rounded-3xl border border-white/5 shadow-2xl w-full max-w-4xl text-center">
                 {renderCurrentLine()}
 
-                {/* Progress Indicator for current line */}
+
                 <div className="absolute bottom-0 left-0 h-1 bg-neon-blue/30 w-full rounded-b-3xl overflow-hidden">
                     <div
                         className="h-full bg-neon-blue transition-all duration-100 ease-linear shadow-[0_0_10px_#00f3ff]"
@@ -89,7 +88,7 @@ export function LyricDisplay({ className = '' }: LyricDisplayProps) {
                 </div>
             </div>
 
-            {/* Next Line (Preview) */}
+
             <div className="mt-12 h-8 flex items-center justify-center opacity-30 transform scale-90">
                 {displayLines.next && (
                     <span className="font-display text-xl text-white/40">

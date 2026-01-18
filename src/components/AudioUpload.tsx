@@ -9,7 +9,10 @@ interface YouTubeResult {
     thumbnail: string;
 }
 
-const API_BASE = 'http://localhost:3001/api';
+const API_BASE = import.meta.env.VITE_API_BASE ?? 'http://localhost:3001/api';
+const API_ORIGIN = API_BASE.startsWith('/')
+    ? (window.location.origin === 'null' ? 'http://localhost:3001' : window.location.origin)
+    : new URL(API_BASE).origin;
 
 export function AudioUpload() {
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -61,7 +64,6 @@ export function AudioUpload() {
         if (file) handleFile(file);
     };
 
-    // Clean up polling on unmount
     useEffect(() => {
         return () => {
             if (downloadPollRef.current) {
@@ -70,7 +72,6 @@ export function AudioUpload() {
         };
     }, []);
 
-    // Auto-fetch audio on song change
     useEffect(() => {
         const autoFetchAudio = async () => {
             if (!currentSong || audioSource || isDownloading) return;
@@ -89,35 +90,32 @@ export function AudioUpload() {
                 if (response.ok) {
                     const data = await response.json();
                     if (data.success && data.audioUrl) {
-                        const fullUrl = `http://localhost:3001${data.audioUrl}`;
+                        const fullUrl = `${API_ORIGIN}${data.audioUrl}`;
                         setAudioSource({
                             type: 'youtube',
                             videoId: data.videoId,
                             url: fullUrl
                         }, fullUrl);
 
-                        // Store YouTube info for display
                         setYoutubeInfo({
                             videoId: data.videoId,
                             videoTitle: data.videoTitle,
                             videoDuration: data.videoDuration,
                             videoChannel: data.videoChannel,
                         });
-                        return; // Successfully set audio, no need to show errors
+                        return;
                     }
                 }
             } catch (error) {
                 console.error('Auto-fetch failed:', error);
-                // Fail silently and let user use manual controls
             } finally {
                 setIsSearching(false);
             }
         };
 
         autoFetchAudio();
-    }, [currentSong, audioSource, isDownloading, setAudioSource, setYoutubeInfo]); // Intentionally omitting dependencies that shouldn't trigger re-fetch
+    }, [currentSong, audioSource, isDownloading, setAudioSource, setYoutubeInfo]);
 
-    // Search YouTube for audio
     const handleYouTubeSearch = async () => {
         if (!currentSong) return;
 
@@ -141,7 +139,6 @@ export function AudioUpload() {
 
             const data = await response.json();
 
-            // Deduplicate results based on ID
             const uniqueResults = (data.results || []).filter((item: YouTubeResult, index: number, self: YouTubeResult[]) =>
                 index === self.findIndex((t) => t.id === item.id)
             );
@@ -163,7 +160,6 @@ export function AudioUpload() {
         }
     };
 
-    // Poll for download progress
     const pollDownloadProgress = useCallback((videoId: string) => {
         downloadPollRef.current = window.setInterval(async () => {
             try {
@@ -171,7 +167,6 @@ export function AudioUpload() {
                 if (response.ok) {
                     const data = await response.json();
                     if (data.cached) {
-                        // Download complete
                         if (downloadPollRef.current) {
                             clearInterval(downloadPollRef.current);
                             downloadPollRef.current = null;
@@ -187,16 +182,14 @@ export function AudioUpload() {
         }, 500);
     }, []);
 
-    // Download selected YouTube video
     const handleDownload = async (video: YouTubeResult) => {
-        if (isDownloading) return; // Prevent double clicks
+        if (isDownloading) return;
 
         setIsDownloading(true);
         setSelectedVideo(video);
         setSearchError(null);
         setDownloadProgress(0);
 
-        // Start polling for progress
         pollDownloadProgress(video.id);
 
         try {
@@ -217,17 +210,14 @@ export function AudioUpload() {
 
             const data = await response.json();
 
-            // Stop polling
             if (downloadPollRef.current) {
                 clearInterval(downloadPollRef.current);
                 downloadPollRef.current = null;
             }
 
-            // Set the audio source to the downloaded file
-            const audioUrl = `http://localhost:3001${data.audioUrl}`;
+            const audioUrl = `${API_ORIGIN}${data.audioUrl}`;
             setAudioSource({ type: 'youtube', videoId: video.id, url: audioUrl }, audioUrl);
 
-            // Store YouTube info for display
             setYoutubeInfo({
                 videoId: video.id,
                 videoTitle: video.title,
@@ -235,10 +225,8 @@ export function AudioUpload() {
                 videoChannel: video.channel,
             });
 
-            // Clear the search results since we've selected one
             setYoutubeResults([]);
         } catch (error) {
-            // Stop polling
             if (downloadPollRef.current) {
                 clearInterval(downloadPollRef.current);
                 downloadPollRef.current = null;
@@ -275,7 +263,7 @@ export function AudioUpload() {
                 className="hidden"
             />
 
-            {/* File Upload Zone */}
+
             <div
                 onClick={handleClick}
                 onDrop={handleDrop}
@@ -309,14 +297,14 @@ export function AudioUpload() {
                 </div>
             </div>
 
-            {/* Divider */}
+
             <div className="flex items-center gap-4">
                 <div className="flex-1 h-px bg-slate-700"></div>
                 <span className="text-slate-500 text-sm">OR</span>
                 <div className="flex-1 h-px bg-slate-700"></div>
             </div>
 
-            {/* YouTube Search Button */}
+
             <button
                 onClick={handleYouTubeSearch}
                 disabled={isSearching || isDownloading}
@@ -339,7 +327,7 @@ export function AudioUpload() {
                 </div>
             </button>
 
-            {/* YouTube Source Display - Always show when YouTube audio is loaded */}
+
             {audioSource?.type === 'youtube' && youtubeInfo && (
                 <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/50">
                     <div className="flex items-center gap-3">
@@ -371,7 +359,7 @@ export function AudioUpload() {
                 </div>
             )}
 
-            {/* Download Progress */}
+
             {isDownloading && selectedVideo && (
                 <div className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/50">
                     <div className="flex items-center gap-3 mb-2">
@@ -394,14 +382,14 @@ export function AudioUpload() {
                 </div>
             )}
 
-            {/* Error Message */}
+
             {searchError && (
                 <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/50 text-rose-300 text-sm">
                     {searchError}
                 </div>
             )}
 
-            {/* YouTube Results */}
+
             {youtubeResults.length > 0 && (
                 <div className="space-y-2">
                     <p className="text-sm text-slate-400">Select a result to download:</p>
@@ -416,7 +404,7 @@ export function AudioUpload() {
                                     : ''
                                     }`}
                             >
-                                {/* Thumbnail */}
+
                                 {video.thumbnail && (
                                     <img
                                         src={video.thumbnail}
@@ -425,7 +413,7 @@ export function AudioUpload() {
                                     />
                                 )}
 
-                                {/* Info */}
+
                                 <div className="flex-1 min-w-0">
                                     <p className="font-medium text-white truncate text-sm">
                                         {video.title}
@@ -435,7 +423,7 @@ export function AudioUpload() {
                                     </p>
                                 </div>
 
-                                {/* Download indicator */}
+
                                 {isDownloading && selectedVideo?.id === video.id ? (
                                     <svg className="animate-spin h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -452,7 +440,7 @@ export function AudioUpload() {
                 </div>
             )}
 
-            {/* Server Info */}
+
             <p className="text-xs text-slate-600 text-center">
                 YouTube audio requires the backend server running on port 3001
             </p>

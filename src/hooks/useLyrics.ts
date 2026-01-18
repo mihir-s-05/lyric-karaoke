@@ -17,9 +17,7 @@ export function useLyrics(): UseLyricsReturn {
     const [isSearching, setIsSearching] = useState(false);
     const [searchError, setSearchError] = useState<string | null>(null);
 
-    // AbortController to cancel stale requests
     const abortControllerRef = useRef<AbortController | null>(null);
-    // Track the current search query to prevent stale results
     const currentQueryRef = useRef<string>('');
 
     const cancelSearch = useCallback(() => {
@@ -36,10 +34,8 @@ export function useLyrics(): UseLyricsReturn {
             return;
         }
 
-        // Cancel any previous in-flight request
         cancelSearch();
 
-        // Create new abort controller for this request
         const abortController = new AbortController();
         abortControllerRef.current = abortController;
         currentQueryRef.current = query;
@@ -53,7 +49,6 @@ export function useLyrics(): UseLyricsReturn {
                 { signal: abortController.signal }
             );
 
-            // Check if this is still the current query (prevent stale results)
             if (currentQueryRef.current !== query) {
                 return;
             }
@@ -64,7 +59,6 @@ export function useLyrics(): UseLyricsReturn {
 
             const data = await response.json();
 
-            // Filter to only include songs with synced lyrics and deduplicate by ID
             const uniqueSongs = new Map();
             data.forEach((song: SearchResult) => {
                 if (song.syncedLyrics && !uniqueSongs.has(song.id)) {
@@ -75,7 +69,6 @@ export function useLyrics(): UseLyricsReturn {
 
             setSearchResults(songsWithSyncedLyrics);
         } catch (error) {
-            // Ignore abort errors (they're expected when canceling)
             if (error instanceof Error && error.name === 'AbortError') {
                 return;
             }
@@ -83,7 +76,6 @@ export function useLyrics(): UseLyricsReturn {
             setSearchError(error instanceof Error ? error.message : 'Search failed');
             setSearchResults([]);
         } finally {
-            // Only update isSearching if this is still the current query
             if (currentQueryRef.current === query) {
                 setIsSearching(false);
             }

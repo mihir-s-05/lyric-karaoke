@@ -37,7 +37,7 @@ export function DifficultySelector() {
                 })}
             </div>
 
-            {/* Difficulty description */}
+
             <p className="text-sm text-slate-500 text-center">
                 {DIFFICULTY_SETTINGS[difficulty].description}
             </p>

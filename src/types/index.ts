@@ -1,9 +1,8 @@
-// Core game types
 
 export interface LyricLine {
-    time: number;      // Time in milliseconds
-    text: string;      // Lyric text
-    endTime?: number;  // End time (calculated from next line)
+    time: number;
+    text: string;
+    endTime?: number;
 }
 
 export interface ParsedLyrics {
@@ -39,21 +38,17 @@ export interface SearchResult {
     syncedLyrics: string | null;
 }
 
-// Difficulty settings
 export type Difficulty = 'easy' | 'medium' | 'hard';
 
 export interface DifficultySettings {
     name: string;
     description: string;
-    // Timing windows in milliseconds
-    perfectWindow: number;     // ±X ms for perfect timing
-    goodWindow: number;        // ±X ms for good timing (partial penalty)
-    // Penalty multipliers (1 = no penalty, 0.5 = 50% of score)
+    perfectWindow: number;
+    goodWindow: number;
     earlyPenalty: number;
     latePenalty: number;
     tooEarlyPenalty: number;
     tooLatePenalty: number;
-    // Scoring multipliers
     baseScoreMultiplier: number;
     comboMultiplier: number;
 }
@@ -97,18 +92,17 @@ export const DIFFICULTY_SETTINGS: Record<Difficulty, DifficultySettings> = {
     },
 };
 
-// Timing result
 export type TimingResult = 'perfect' | 'early' | 'late' | 'too_early' | 'too_late';
 
 export interface LineResult {
     lineIndex: number;
     typedText: string;
     expectedText: string;
-    characterAccuracy: number;  // 0-1
+    characterAccuracy: number;
     timingResult: TimingResult;
-    timingScore: number;        // 0-1
-    score: number;              // Final calculated score
-    combo: number;              // Combo at time of completion
+    timingScore: number;
+    score: number;
+    combo: number;
 }
 
 export interface GameState {
@@ -125,7 +119,6 @@ export interface GameState {
     currentTime: number;
 }
 
-// High score persistence
 export interface HighScore {
     songId: string;
     trackName: string;
@@ -137,7 +130,6 @@ export interface HighScore {
     date: string;
 }
 
-// Game statistics
 export interface GameStats {
     totalScore: number;
     accuracy: number;
@@ -148,7 +140,6 @@ export interface GameStats {
     wordsPerMinute: number;
 }
 
-// Audio source types
 export type AudioSource =
     | { type: 'youtube'; videoId: string; url?: string }
     | { type: 'file'; file: File; url: string };

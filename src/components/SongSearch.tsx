@@ -10,7 +10,6 @@ function formatDuration(seconds: number): string {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
 }
 
-// Generate a deterministic gradient based on string (for consistent "cover art")
 function getGradient(str: string) {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
@@ -52,7 +51,7 @@ export function SongSearch() {
 
     return (
         <div className="w-full max-w-5xl mx-auto px-4">
-            {/* Search Header */}
+
             <div className="relative mb-12 text-center">
                 <input
                     type="text"
@@ -75,14 +74,14 @@ export function SongSearch() {
                 </div>
             </div>
 
-            {/* Error Display */}
+
             {searchError && (
                 <div className="mb-8 p-4 bg-rose-500/10 border border-rose-500/50 rounded-lg text-rose-400 text-center font-mono">
                     ERROR: {searchError}
                 </div>
             )}
 
-            {/* Song Grid */}
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {searchResults.map((song) => (
                     <button
@@ -93,14 +92,14 @@ export function SongSearch() {
                                 : 'hover:ring-1 hover:ring-white/20'
                             }`}
                     >
-                        {/* Background "Cover Art" */}
+
                         <div
                             className="absolute inset-0 transition-transform duration-700 group-hover:scale-110"
                             style={{ background: getGradient(song.trackName + song.artistName) }}
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-deep-bg via-deep-bg/80 to-transparent" />
 
-                        {/* Content */}
+
                         <div className="relative p-6 h-48 flex flex-col justify-end text-left">
                             <div className="mb-auto opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform -translate-y-2 group-hover:translate-y-0">
                                 {song.syncedLyrics && (
@@ -123,7 +122,7 @@ export function SongSearch() {
                             </div>
                         </div>
 
-                        {/* Selection Indicator */}
+
                         {currentSong?.id === song.id && (
                             <div className="absolute top-4 right-4 h-3 w-3 rounded-full bg-neon-blue shadow-[0_0_10px_#00f3ff] animate-pulse"></div>
                         )}
@@ -131,7 +130,7 @@ export function SongSearch() {
                 ))}
             </div>
 
-            {/* Empty States */}
+
             {query && !isSearching && searchResults.length === 0 && (
                 <div className="text-center py-20 opacity-50">
                     <div className="font-display text-4xl mb-2 text-white/20">NO DATA FOUND</div>
@@ -142,7 +141,9 @@ export function SongSearch() {
             {!query && (
                 <div className="text-center py-32 opacity-30 animate-pulse-fast">
                     <div className="font-display text-6xl mb-4 tracking-tighter">WAITING FOR INPUT</div>
-                    <p className="font-mono text-neon-blue">/// ENTER TRACK IDENTIFIER TO INITIALIZE SCAN</p>
+                    <p className="font-mono text-neon-blue">
+                        {'/// ENTER TRACK IDENTIFIER TO INITIALIZE SCAN'}
+                    </p>
                 </div>
             )}
         </div>

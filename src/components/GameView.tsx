@@ -18,7 +18,6 @@ export function GameView({ onBackToSearch }: GameViewProps) {
     const [showSettings, setShowSettings] = useState(false);
     const countdownStartRef = useRef<number | null>(null);
 
-    // Countdown logic
     useEffect(() => {
         if (status !== 'countdown') {
             countdownStartRef.current = null;
@@ -39,7 +38,6 @@ export function GameView({ onBackToSearch }: GameViewProps) {
         return () => clearInterval(interval);
     }, [status]);
 
-    // Auto-hide auto-submit notification
     useEffect(() => {
         if (showAutoSubmitNotification) {
             const timer = setTimeout(() => {
@@ -49,7 +47,6 @@ export function GameView({ onBackToSearch }: GameViewProps) {
         }
     }, [showAutoSubmitNotification, setShowAutoSubmitNotification]);
 
-    // Keyboard shortcuts
     useEffect(() => {
         const handleKeydown = (e: KeyboardEvent) => {
             if (e.key === 'Escape') {
@@ -91,13 +88,13 @@ export function GameView({ onBackToSearch }: GameViewProps) {
 
     return (
         <div className="w-full h-screen flex flex-col overflow-hidden relative">
-            {/* Background Ambience */}
+
             <div className="absolute inset-0 pointer-events-none overflow-hidden">
                 <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-neon-purple/10 rounded-full blur-[100px] animate-pulse"></div>
                 <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-neon-blue/10 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '1s' }}></div>
             </div>
 
-            {/* Top Bar / HUD */}
+
             <div className="relative z-10 px-8 py-6 flex justify-between items-start">
                 <button
                     onClick={handleBackToSearch}
@@ -108,14 +105,14 @@ export function GameView({ onBackToSearch }: GameViewProps) {
                     </svg>
                 </button>
 
-                {/* ScoreBoard Floating HUD */}
+
                 {(status === 'playing' || status === 'paused') && (
                     <div className="absolute top-4 left-1/2 -translate-x-1/2 w-full max-w-5xl">
                         <ScoreBoard />
                     </div>
                 )}
 
-                {/* Pause Button */}
+
                 {(status === 'playing' || status === 'paused') && (
                     <button
                         onClick={status === 'playing' ? pauseGame : resumeGame}
@@ -130,9 +127,9 @@ export function GameView({ onBackToSearch }: GameViewProps) {
                 )}
             </div>
 
-            {/* Main Stage */}
+
             <div className="flex-1 relative z-10 flex flex-col justify-center items-center w-full max-w-7xl mx-auto px-4">
-                {/* Countdowns & Overlays */}
+
                 {status === 'countdown' && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
                         <div className="font-display font-black text-[15rem] text-transparent bg-clip-text bg-gradient-to-br from-neon-blue to-neon-purple animate-ping">
@@ -157,7 +154,7 @@ export function GameView({ onBackToSearch }: GameViewProps) {
                     </div>
                 )}
 
-                {/* Idle / Start Screen */}
+
                 {status === 'idle' && (
                     <div className="text-center space-y-6 animate-slide-up py-8 overflow-y-auto max-h-full">
                         <div className="space-y-2">
@@ -180,9 +177,9 @@ export function GameView({ onBackToSearch }: GameViewProps) {
                             </div>
                         </div>
 
-                        {/* Settings Panel */}
+
                         <div className="bg-white/5 p-5 rounded-2xl max-w-md mx-auto border border-white/10 space-y-5">
-                            {/* Volume Control */}
+
                             <div>
                                 <label className="flex justify-between text-sm font-mono text-white/60 mb-3">
                                     <span className="flex items-center gap-2">
@@ -211,7 +208,7 @@ export function GameView({ onBackToSearch }: GameViewProps) {
                                 />
                             </div>
 
-                            {/* Speed Control */}
+
                             <div>
                                 <label className="flex justify-between text-sm font-mono text-white/60 mb-3">
                                     <span>PLAYBACK SPEED</span>
@@ -225,7 +222,7 @@ export function GameView({ onBackToSearch }: GameViewProps) {
                                 />
                             </div>
 
-                            {/* Lyrics Offset Control */}
+
                             <div>
                                 <label className="flex justify-between text-sm font-mono text-white/60 mb-3">
                                     <span>LYRICS OFFSET</span>
@@ -246,7 +243,7 @@ export function GameView({ onBackToSearch }: GameViewProps) {
                                 </div>
                             </div>
 
-                            {/* Typing Mode */}
+
                             <div>
                                 <label className="block text-sm font-mono text-white/60 mb-3">TYPING MODE</label>
                                 <div className="grid grid-cols-3 gap-2">
@@ -307,10 +304,10 @@ export function GameView({ onBackToSearch }: GameViewProps) {
                     </div>
                 )}
 
-                {/* Active Gameplay */}
+
                 {(status === 'playing' || status === 'paused') && (
                     <div className="w-full flex-1 flex flex-col justify-center space-y-12 pb-12">
-                        {/* Auto-submit notification */}
+
                         {showAutoSubmitNotification && (
                             <div className="fixed top-24 left-1/2 -translate-x-1/2 z-40 animate-slide-up">
                                 <div className="px-4 py-2 bg-amber-500/20 border border-amber-500/50 rounded-lg text-amber-300 text-sm font-mono">
@@ -335,7 +332,7 @@ export function GameView({ onBackToSearch }: GameViewProps) {
                             </div>
                         </div>
 
-                        {/* Quick settings during gameplay */}
+
                         {showSettings && (
                             <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-40 bg-deep-surface/95 backdrop-blur-xl border border-white/10 rounded-2xl p-4 w-80 animate-slide-up">
                                 <div className="flex justify-between items-center mb-3">
@@ -347,7 +344,7 @@ export function GameView({ onBackToSearch }: GameViewProps) {
                                     </button>
                                 </div>
 
-                                {/* Volume */}
+
                                 <div className="mb-3">
                                     <div className="flex justify-between text-xs font-mono text-white/40 mb-1">
                                         <span>Volume</span>
@@ -361,7 +358,7 @@ export function GameView({ onBackToSearch }: GameViewProps) {
                                     />
                                 </div>
 
-                                {/* Lyrics Offset */}
+
                                 <div>
                                     <div className="flex justify-between text-xs font-mono text-white/40 mb-1">
                                         <span>Lyrics Offset</span>
@@ -377,7 +374,7 @@ export function GameView({ onBackToSearch }: GameViewProps) {
                             </div>
                         )}
 
-                        {/* Settings toggle button */}
+
                         <button
                             onClick={() => setShowSettings(!showSettings)}
                             className="fixed bottom-4 left-1/2 -translate-x-1/2 z-30 px-4 py-2 bg-white/5 border border-white/10 rounded-full text-white/40 hover:text-white hover:bg-white/10 transition-all text-xs font-mono"

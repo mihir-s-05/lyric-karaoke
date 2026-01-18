@@ -1,7 +1,6 @@
 import { useRef, useCallback, useEffect, useState } from 'react';
 import { Howl } from 'howler';
 
-// Throttle interval for store updates (reduces React re-renders)
 const STORE_UPDATE_INTERVAL_MS = 150;
 
 interface UseAudioSyncReturn {
@@ -13,7 +12,6 @@ interface UseAudioSyncReturn {
     playbackRate: number;
     volume: number;
     isMuted: boolean;
-    // Direct access to current time without causing re-renders (for progress bar)
     getCurrentTime: () => number;
     loadAudio: (url: string) => void;
     play: () => void;
@@ -41,7 +39,6 @@ export function useAudioSync(): UseAudioSyncReturn {
     const [volume, setVolumeState] = useState(0.7);
     const [isMuted, setIsMuted] = useState(false);
 
-    // Get current time directly without triggering re-render (for progress bar)
     const getCurrentTime = useCallback(() => {
         if (howlRef.current) {
             return (howlRef.current.seek() as number) * 1000;
@@ -49,13 +46,11 @@ export function useAudioSync(): UseAudioSyncReturn {
         return currentTimeRef.current;
     }, []);
 
-    // Update current time using requestAnimationFrame but throttle state updates
     const updateTime = useCallback(function updateTime() {
         if (howlRef.current && howlRef.current.playing()) {
-            const time = (howlRef.current.seek() as number) * 1000; // Convert to milliseconds
+            const time = (howlRef.current.seek() as number) * 1000;
             currentTimeRef.current = time;
 
-            // Only update React state every STORE_UPDATE_INTERVAL_MS to reduce re-renders
             const now = Date.now();
             if (now - lastUpdateTimeRef.current >= STORE_UPDATE_INTERVAL_MS) {
                 setCurrentTime(time);
@@ -67,7 +62,6 @@ export function useAudioSync(): UseAudioSyncReturn {
     }, []);
 
     const loadAudio = useCallback((url: string) => {
-        // Unload previous audio
         if (howlRef.current) {
             howlRef.current.unload();
         }
@@ -82,13 +76,12 @@ export function useAudioSync(): UseAudioSyncReturn {
 
         howlRef.current = new Howl({
             src: [url],
-            html5: true, // Use HTML5 audio for better streaming support
+            html5: true,
             preload: true,
             volume: isMuted ? 0 : volume,
             onload: () => {
                 setIsLoading(false);
                 setDuration((howlRef.current?.duration() || 0) * 1000);
-                // Apply the stored playback rate to the newly loaded audio
                 if (howlRef.current && playbackRateRef.current !== 1.0) {
                     howlRef.current.rate(playbackRateRef.current);
                 }
@@ -180,7 +173,6 @@ export function useAudioSync(): UseAudioSyncReturn {
         setDuration(0);
     }, []);
 
-    // Cleanup on unmount
     useEffect(() => {
         return () => {
             if (howlRef.current) {
